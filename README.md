@@ -1,88 +1,46 @@
-# text-to-mp3
+# Epub to Audiobook
 
-Convierte archivos de texto largos a MP3 usando **Edge TTS** — la voz neuronal de Microsoft Edge, gratuita y sin API key. Por defecto usa `es-ES-AlvaroNeural`, una voz masculina española de alta naturalidad.
-
-## Características
-
-- Voz neuronal natural (sin la robotización de gTTS)
-- Divide textos largos en fragmentos inteligentemente (respeta párrafos y frases)
-- Barra de progreso con ETA en tiempo real
-- Reintentos automáticos ante fallos de red
-- Control de velocidad (`--lento`, `--velocidad`)
-- Pausa configurable entre párrafos
-- Entorno reproducible con Nix Flakes
+Convierte libros EPUB a audiolibros M4B con marcadores de capítulo usando **Microsoft Edge TTS** — voz neuronal gratuita, sin API key.
 
 ## Requisitos
 
-**Con Nix (recomendado):**
 ```bash
-nix develop      # activa el entorno con todas las dependencias
-```
-
-**Con pip:**
-```bash
-pip install edge-tts pydub
-# también necesitas ffmpeg instalado en el sistema
+nix develop    # activa el entorno (Python 3.11, epub2tts-edge, ffmpeg, espeak-ng)
 ```
 
 ## Uso
 
 ```bash
-# Conversión básica
-python3 texto_a_mp3.py -i capitulo1.txt
+# 1. Extraer texto del EPUB
+epub2tts-edge libro.epub
 
-# Especificar carpeta de salida
-python3 texto_a_mp3.py -i libro.txt -o ~/audios/
+# 2. Editar libro.txt (opcional)
+#    - Primera línea:  Title: Título
+#    - Segunda línea:  Author: Autor
+#    - Capítulos:      # Capítulo 1
+#    - Eliminar índices, notas legales, etc.
+#
+#    fix_parts.py reemplaza marcadores # Part N con títulos reales del índice:
+python3 fix_parts.py libro.txt
 
-# Voz femenina española
-python3 texto_a_mp3.py -i libro.txt --voz es-ES-ElviraNeural
-
-# Voz más lenta
-python3 texto_a_mp3.py -i libro.txt --lento
-
-# Control fino de velocidad
-python3 texto_a_mp3.py -i libro.txt --velocidad -30%
-
-# Todas las opciones
-python3 texto_a_mp3.py --help
+# 3. Generar M4B con marcadores de capítulo
+epub2tts-edge libro.txt --cover libro.png --speaker es-ES-AlvaroNeural
 ```
-
-## Opciones
-
-| Opción | Descripción | Por defecto |
-|---|---|---|
-| `-i / --input` | Archivo de texto de entrada | *(obligatorio)* |
-| `-o / --output` | Carpeta de salida | misma carpeta que `-i` |
-| `--voz` | Nombre de voz Edge TTS | `es-ES-AlvaroNeural` |
-| `--lento` | Velocidad reducida (−20 %) | desactivado |
-| `--velocidad` | Ajuste de velocidad (`+10%`, `-30%`...) | `+0%` |
-| `--pausa` | Silencio entre párrafos (ms) | `600` |
-| `--max-chars` | Máx. caracteres por fragmento | `5000` |
 
 ## Voces disponibles
 
-Algunas voces en español de calidad:
+Algunas voces en español:
 
 | Voz | Género | Variante |
 |---|---|---|
-| `es-ES-AlvaroNeural` | Hombre | España |
-| `es-ES-ElviraNeural` | Mujer | España |
-| `es-MX-JorgeNeural` | Hombre | México |
-| `es-MX-DaliaNeural` | Mujer | México |
-| `es-AR-TomasNeural` | Hombre | Argentina |
-| `es-AR-ElenaNeural` | Mujer | Argentina |
+| `es-ES-AlvaroNeural` | M | España |
+| `es-ES-ElviraNeural` | F | España |
+| `es-MX-JorgeNeural` | M | México |
+| `es-MX-DaliaNeural` | F | México |
+| `es-AR-TomasNeural` | M | Argentina |
+| `es-AR-ElenaNeural` | F | Argentina |
 
-Para ver todas las voces disponibles:
 ```bash
+# Ver todas las voces disponibles
 edge-tts --list-voices | grep es-
-```
-
-## Con Nix Flakes
-
-```bash
-# Entrar al entorno de desarrollo
-nix develop
-
-# O ejecutar directamente sin entrar al entorno
-nix run . -- -i libro.txt -o ~/audios/
 ```
