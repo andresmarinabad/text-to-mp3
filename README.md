@@ -1,5 +1,7 @@
 # epub2audiobook
 
+[![Tests](https://github.com/andresmarinabad/epub-to-audiobook/actions/workflows/ci-tests.yml/badge.svg?branch=main)](https://github.com/andresmarinabad/epub-to-audiobook/actions/workflows/ci-tests.yml)
+
 Convierte archivos EPUB en audiolibros M4B chaptered usando Microsoft Edge TTS con **procesamiento paralelo de capítulos** y una interfaz web moderna.
 
 ## Características
@@ -21,17 +23,17 @@ Convierte archivos EPUB en audiolibros M4B chaptered usando Microsoft Edge TTS c
 
 ## Stack
 
-| Componente | Tecnología |
-|---|---|
-| Backend API | FastAPI + uvicorn |
-| Workers | Celery (N-2 CPUs en paralelo) |
-| Broker / estado | Redis 7 |
-| TTS | Microsoft Edge TTS (edge-tts) |
-| Audio | pydub + ffmpeg → FLAC → M4B |
-| Monitoring workers | Flower |
-| Frontend | HTML/CSS/JS vanilla + nginx |
-| Paquetes Python | uv (pyproject.toml) |
-| Entorno dev | Nix flakes |
+| Componente         | Tecnología                    |
+| ------------------ | ----------------------------- |
+| Backend API        | FastAPI + uvicorn             |
+| Workers            | Celery (N-2 CPUs en paralelo) |
+| Broker / estado    | Redis 7                       |
+| TTS                | Microsoft Edge TTS (edge-tts) |
+| Audio              | pydub + ffmpeg → FLAC → M4B   |
+| Monitoring workers | Flower                        |
+| Frontend           | HTML/CSS/JS vanilla + nginx   |
+| Paquetes Python    | uv (pyproject.toml)           |
+| Entorno dev        | Nix flakes                    |
 
 ## Inicio rápido
 
@@ -102,14 +104,14 @@ epub-to-audiobook/
 
 ## Variables de entorno (`.env`)
 
-| Variable | Por defecto | Descripción |
-|---|---|---|
-| `API_KEY` | `changeme` | Clave de autenticación (**cámbiala siempre**) |
-| `REDIS_URL` | `redis://redis:6379/0` | URL del broker Redis |
-| `WORKER_CONCURRENCY` | auto (`nproc-2`, min 1) | Capítulos en paralelo |
-| `FRONTEND_PORT` | `8080` | Puerto del frontend en el host |
-| `FLOWER_PORT` | `5555` | Puerto de Flower en el host |
-| `OUTPUT_DIR` | `/app/output` | Directorio de archivos generados |
+| Variable             | Por defecto             | Descripción                                   |
+| -------------------- | ----------------------- | --------------------------------------------- |
+| `API_KEY`            | `changeme`              | Clave de autenticación (**cámbiala siempre**) |
+| `REDIS_URL`          | `redis://redis:6379/0`  | URL del broker Redis                          |
+| `WORKER_CONCURRENCY` | auto (`nproc-2`, min 1) | Capítulos en paralelo                         |
+| `FRONTEND_PORT`      | `8080`                  | Puerto del frontend en el host                |
+| `FLOWER_PORT`        | `5555`                  | Puerto de Flower en el host                   |
+| `OUTPUT_DIR`         | `/app/output`           | Directorio de archivos generados              |
 
 ## Flujo de conversión
 
@@ -133,6 +135,7 @@ uv run pytest
 ```
 
 Los tests cubren:
+
 - **Domain models**: `Job`, `Chapter`, cálculo de progreso, enums
 - **EPUB reader**: `parse_txt` con distintos formatos de entrada
 - **Serialización Redis**: roundtrip `_job_to_dict` / `_dict_to_job`
@@ -146,11 +149,11 @@ No requieren Redis, ffmpeg ni red (todo mockeado).
 
 ## CI/CD
 
-| Workflow | Trigger | Acción |
-|---|---|---|
-| `ci-tests.yml` | push / PR con cambios en `backend/` | Ejecuta pytest |
-| `ci-build-push.yml` | PR mergeada a `master` | Build + push a GHCR con tag `sha-{commit}` y `latest` |
-| `ci-release.yml` | PR mergeada a `master` | Crea GitHub Release con semver automático |
+| Workflow            | Trigger                             | Acción                                                |
+| ------------------- | ----------------------------------- | ----------------------------------------------------- |
+| `ci-tests.yml`      | push / PR con cambios en `backend/` | Ejecuta pytest                                        |
+| `ci-build-push.yml` | PR mergeada a `master`              | Build + push a GHCR con tag `sha-{commit}` y `latest` |
+| `ci-release.yml`    | PR mergeada a `master`              | Crea GitHub Release con semver automático             |
 
 Las imágenes Docker se publican en GitHub Container Registry:
 
