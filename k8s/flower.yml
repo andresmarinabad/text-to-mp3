@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flower
+spec:
+  selector:
+    matchLabels:
+      app: flower
+  template:
+    metadata:
+      labels:
+        app: flower
+    spec:
+      containers:
+        - name: flower
+          image: ghcr.io/andresmarinabad/epub-to-audiobook/backend:latest
+          imagePullPolicy: Always
+          command:
+            - celery
+            - -A
+            - audiobook.infrastructure.celery.app:celery_app
+            - flower
+            - --port=5555
+          ports:
+            - containerPort: 5555
+          envFrom:
+            - secretRef:
+                name: epub-to-audiobook-env
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5555
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flower
+spec:
+  selector:
+    app: flower
+  ports:
+    - port: 5555
+      targetPort: 5555
