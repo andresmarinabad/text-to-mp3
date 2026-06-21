@@ -11,6 +11,10 @@ spec:
       labels:
         app: flower
     spec:
+      # Kubernetes inyecta FLOWER_PORT=tcp://...:5555 desde el Service homónimo,
+      # lo que rompe el CLI de Flower que espera un int. enableServiceLinks=false
+      # elimina esa inyección; los pods descubren servicios por DNS de todas formas.
+      enableServiceLinks: false
       containers:
         - name: flower
           image: ghcr.io/andresmarinabad/epub-to-audiobook/backend:latest
